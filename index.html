@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Технічний експерт екостудії — інтерактивна гра</title>
+<style>
+:root{--green:#176b46;--leaf:#2fa866;--cream:#f5faef;--ink:#183b32;--muted:#58736a;--line:#d8e9dc;--blue:#2677c9;--orange:#e98624;--pink:#d94380}
+*{box-sizing:border-box}
+body{margin:0;background:linear-gradient(135deg,#eaf6e8,#f8fbf2 55%,#e6f4ef);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+button{font:inherit;cursor:pointer}
+.wrap{max-width:1050px;margin:auto;padding:20px}
+.hero{background:linear-gradient(120deg,#104d37,#238552);color:white;border-radius:24px;padding:clamp(22px,5vw,42px);position:relative;overflow:hidden;box-shadow:0 12px 32px #174e3520}
+.hero:after{content:"🌿";position:absolute;right:25px;bottom:-24px;font-size:clamp(70px,12vw,140px);opacity:.2;transform:rotate(-18deg)}
+.eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:.78rem;font-weight:800;opacity:.85}
+h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1.05;margin:.5rem 0}
+.hero p{max-width:690px;line-height:1.55;margin-bottom:0}
+.pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.pill{background:#ffffff20;border:1px solid #ffffff50;border-radius:999px;padding:7px 12px;font-size:.9rem}
+.topline{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:20px 2px 14px;flex-wrap:wrap}
+.progressbox{flex:1;min-width:180px}
+.progress-label{display:flex;justify-content:space-between;font-size:.9rem;color:var(--muted);margin-bottom:7px}
+.track{height:10px;background:#dbe9dc;border-radius:99px;overflow:hidden}
+.bar{height:100%;width:0;background:linear-gradient(90deg,#39a96b,#87c94b);transition:width .25s}
+.score{background:white;border:1px solid var(--line);padding:10px 14px;border-radius:14px;font-weight:800;white-space:nowrap}
+.card{background:#fff;border:1px solid var(--line);border-radius:22px;overflow:hidden;box-shadow:0 8px 24px #1d57300c}
+.cardhead{padding:24px 24px 12px;display:flex;gap:15px;align-items:flex-start}
+.number{width:48px;height:48px;display:grid;place-items:center;flex:0 0 48px;border-radius:16px;background:#e3f5e7;color:var(--green);font-size:1.4rem;font-weight:900}
+.kicker{font-size:.78rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--leaf)}
+h2{font-size:clamp(1.25rem,3vw,1.8rem);line-height:1.25;margin:5px 0 0}
+.scene{margin:0 24px 18px;border-radius:16px;min-height:125px;padding:22px;background:linear-gradient(130deg,#e9f8e9,#f6fbef);display:flex;align-items:center;gap:20px}
+.scene-icon{font-size:clamp(3.2rem,9vw,5.6rem);line-height:1}
+.scene-text strong{display:block;font-size:1.05rem;margin-bottom:4px}
+.scene-text p{margin:0;color:#47675a;line-height:1.45}
+.answers{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:0 24px 22px}
+.answer{border:2px solid #e1ebe3;border-radius:16px;padding:15px;text-align:left;background:#fff;color:var(--ink);display:flex;gap:11px;align-items:flex-start;min-height:90px;transition:.15s}
+.answer:hover:not(:disabled){border-color:#70bd87;background:#f6fcf5;transform:translateY(-2px)}
+.letter{width:30px;height:30px;flex:0 0 30px;display:grid;place-items:center;border-radius:10px;background:#edf4ee;font-weight:900;color:#35684c}
+.answer span:last-child{line-height:1.4}
+.answer.correct{border-color:#259b5b;background:#eaf8ee}
+.answer.correct .letter{background:#259b5b;color:#fff}
+.answer.wrong{border-color:#df6b6b;background:#fff0f0}
+.answer:disabled{cursor:default}
+.feedback{margin:0 24px 22px;padding:16px;border-radius:14px;line-height:1.5;display:none}
+.feedback.show{display:block}
+.feedback.good{background:#e8f7eb;border:1px solid #a8dcb5}
+.feedback.bad{background:#fff4e6;border:1px solid #f0c68b}
+.controls{display:flex;justify-content:space-between;gap:12px;padding:0 24px 24px;flex-wrap:wrap}
+.btn{border:0;border-radius:13px;padding:12px 18px;font-weight:800}
+.btn.primary{background:var(--green);color:white}
+.btn.primary:hover{background:#0d5738}
+.btn.secondary{background:#eef5ef;color:var(--green);border:1px solid #d7e7d9}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.hint{margin-top:18px;color:var(--muted);font-size:.92rem;line-height:1.5}
+.result{display:none;background:white;border:1px solid var(--line);border-radius:22px;padding:clamp(22px,5vw,42px);text-align:center;box-shadow:0 8px 24px #1d57300c}
+.result.show{display:block}
+.trophy{font-size:4rem}
+.result h2{font-size:clamp(1.8rem,4vw,2.5rem);margin:10px 0}
+.bigscore{font-size:3rem;font-weight:900;color:var(--green);margin:12px 0}
+.result p{line-height:1.6;max-width:640px;margin:12px auto;color:#48665b}
+.review{margin:24px auto;max-width:680px;text-align:left}
+.review div{padding:12px 0;border-bottom:1px solid #e7efe8;line-height:1.45}
+footer{text-align:center;padding:24px 8px 8px;color:#557468;font-size:.9rem}
+@media(max-width:700px){.wrap{padding:12px}.answers{grid-template-columns:1fr;padding:0 16px 18px}.cardhead{padding:18px 16px 12px}.scene{margin:0 16px 16px;padding:17px;gap:13px}.feedback{margin:0 16px 18px}.controls{padding:0 16px 18px}.answer{min-height:unset}.number{width:42px;height:42px;flex-basis:42px}.hero:after{right:8px}.controls .btn{flex:1}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="hero">
+  <div class="eyebrow">🌎 Екоблогінг · практичний челендж</div>
+  <h1>Технічний експерт<br>екостудії</h1>
+  <p>Пройди місії камери, світла та звуку. Обирай відповідь, читай підказки й набирай бали, щоб довести: ти готовий створювати якісний екоконтент!</p>
+  <div class="pills"><span class="pill">📸 Камера</span><span class="pill">💡 Освітлення</span><span class="pill">🎤 Мікрофон</span><span class="pill">🎯 6 місій</span></div>
+</header>
+
+<div class="topline" id="topline">
+  <div class="progressbox"><div class="progress-label"><span id="progressText">Місія 1 із 6</span><span id="progressPct">0%</span></div><div class="track"><div class="bar" id="progressBar"></div></div></div>
+  <div class="score">⭐ Бали: <span id="score">0</span> / 60</div>
+</div>
+
+<main id="game" class="card" aria-live="polite">
+  <div class="cardhead"><div class="number" id="qNumber">1</div><div><div class="kicker" id="category">Місія камери</div><h2 id="question">Відео темне, хоча рослина добре освітлена. Що перевірити насамперед?</h2></div></div>
+  <div class="scene"><div class="scene-icon" id="sceneIcon">📱</div><div class="scene-text"><strong id="sceneTitle">Рятуємо кадр!</strong><p id="sceneDesc">Твоя команда знімає паросток для екоблогу. Кадр вийшов занадто темним.</p></div></div>
+  <div class="answers" id="answers"></div>
+  <div class="feedback" id="feedback" role="status"></div>
+  <div class="controls"><button class="btn secondary" id="restartBtn">↻ Почати спочатку</button><button class="btn primary" id="nextBtn" disabled>Наступна місія →</button></div>
+</main>
+
+<section class="result" id="result" aria-live="polite">
+  <div class="trophy" id="trophy">🏆</div><div class="kicker">Місію завершено</div><h2 id="resultTitle">Ти — технічний експерт екостудії!</h2>
+  <div class="bigscore"><span id="finalScore">0</span> / 60</div><p id="resultText"></p>
+  <div class="review" id="review"></div>
+  <button class="btn primary" id="playAgain">🔁 Зіграти ще раз</button>
+</section>
+<div class="hint">💡 Порада: у реальній зйомці перевіряй результат тестовим кадром або записом. Різні смартфони й мікрофони можуть працювати по-різному.</div>
+<footer>🌿 Знімай. Досліджуй. Надихай! 💚</footer>
+</div>
+<script>
+const questions = [
+ {cat:"Місія камери",icon:"📱",title:"Рятуємо кадр!",desc:"Ти знімаєш паросток для екоблогу. Кадр вийшов занадто темним.",q:"Відео темне. Що перевірити насамперед?",a:["Експозицію та освітлення","Колір чохла смартфона","Гучність мікрофона"],correct:0,tip:"Перевір яскравість кадру, торкнися об’єкта для фокусування й за потреби додай світла. Не спрямовуй камеру просто на яскраве вікно.",icon2:"📷"},
+ {cat:"Місія камери",icon:"🔎",title:"Спіймай фокус!",desc:"Ти хочеш показати найдрібніші прожилки на листку, але фон чіткий, а листок розмитий.",q:"Як допомогти камері сфокусуватися на листку?",a:["Швидко рухати смартфон","Торкнутися листка на екрані та втримати камеру нерухомо","Збільшити гучність"],correct:1,tip:"Торкнися потрібного об’єкта на екрані. Тримай смартфон стабільно й не наближайся ближче, ніж дозволяє фокусування камери.",icon2:"🍃"},
+ {cat:"Місія освітлення",icon:"💡",title:"Керуй світлом!",desc:"Треба зняти рослину в кімнаті так, щоб кольори виглядали природно.",q:"З якого освітлення найкраще почати експеримент?",a:["Спалахом зблизька в будь-яких умовах","Повною темрявою","М’яким природним світлом біля вікна"],correct:2,tip:"М’яке світло біля вікна часто добре передає кольори. Перевір, щоб на листках не було різких тіней чи відблисків.",icon2:"☀️"},
+ {cat:"Місія освітлення",icon:"⭕",title:"Навіщо кільцева лампа?",desc:"Блогер записує коротке звернення до глядачів у приміщенні.",q:"Для чого найчастіше використовують кільцеву лампу?",a:["Щоб записувати звук","Щоб рівномірно освітити обличчя або близький об’єкт","Щоб автоматично покращити якість аудіо"],correct:1,tip:"Кільцева лампа дає близьке, відносно рівномірне освітлення. Для природи вона не завжди найкращий варіант: слідкуй за відблисками та природністю кольорів.",icon2:"💡"},
+ {cat:"Місія мікрофона",icon:"🎤",title:"Почуй голос!",desc:"Ти підключив зовнішній мікрофон до смартфона й готовий записувати коментар.",q:"Що потрібно зробити перед основною зйомкою?",a:["Перевірити сумісність і підключення, записати тест та прослухати його","Закрити мікрофон рукою","Одразу почати запис, не перевіряючи звук"],correct:0,tip:"Роз’єм і адаптер мають бути сумісними з пристроєм. Зроби короткий тест, перевір рівень гучності й послухай запис у навушниках.",icon2:"🎧"},
+ {cat:"Місія мікрофона",icon:"🌳",title:"Звукова експедиція",desc:"Потрібно записати голос і звуки природи в парку, де дме вітер.",q:"Як найкраще зменшити небажаний шум вітру?",a:["Тримати мікрофон подалі від джерела звуку","Говорити якомога тихіше з великої відстані","Використати вітрозахист, обрати захищене місце й зробити тестовий запис"],correct:2,tip:"Вітрозахист і правильне розташування мікрофона допомагають зменшити шум. Зовнішній мікрофон не завжди кращий автоматично — перевір результат у конкретних умовах.",icon2:"🍃"}
+];
+let index=0, score=0, answered=false, earned=[];
+const $=id=>document.getElementById(id);
+function render(){
+ const q=questions[index];answered=false;
+ $("topline").style.display="flex";$("game").style.display="block";$("result").classList.remove("show");
+ $("qNumber").textContent=index+1;$("category").textContent=q.cat;$("question").textContent=q.q;
+ $("sceneIcon").textContent=q.icon;$("sceneTitle").textContent=q.title;$("sceneDesc").textContent=q.desc;
+ $("progressText").textContent=`Місія ${index+1} із ${questions.length}`;
+ $("progressPct").textContent=Math.round(index/questions.length*100)+"%";
+ $("progressBar").style.width=(index/questions.length*100)+"%";
+ $("score").textContent=score;$("feedback").className="feedback";$("feedback").textContent="";
+ $("nextBtn").disabled=true;$("nextBtn").textContent=index===questions.length-1?"Підбити підсумки 🏆":"Наступна місія →";
+ const box=$("answers");box.innerHTML="";
+ q.a.forEach((answer,i)=>{
+  const b=document.createElement("button");b.className="answer";b.type="button";
+  const letter=document.createElement("span");letter.className="letter";letter.textContent=String.fromCharCode(65+i);
+  const txt=document.createElement("span");txt.textContent=answer;b.append(letter,txt);
+  b.addEventListener("click",()=>choose(i));box.appendChild(b);
+ });
+}
+function choose(choice){
+ if(answered)return;answered=true;
+ const q=questions[index], buttons=[...$("answers").children], good=choice===q.correct;
+ earned[index]=good?10:0;score+=earned[index];
+ buttons.forEach((b,i)=>{b.disabled=true;if(i===q.correct)b.classList.add("correct");else if(i===choice)b.classList.add("wrong")});
+ const f=$("feedback");f.className="feedback show "+(good?"good":"bad");
+ f.innerHTML=`<strong>${good?"✅ Чудово! +10 балів":"💡 Не цього разу — 0 балів"}</strong><br>${q.tip}`;
+ $("score").textContent=score;$("nextBtn").disabled=false;
+}
+function finish(){
+ $("game").style.display="none";$("topline").style.display="none";$("result").classList.add("show");
+ $("progressBar").style.width="100%";$("finalScore").textContent=score;
+ let title,emoji,msg;
+ if(score===60){title="Безпомилково! Ти — майстер екостудії!";emoji="🏆";msg="Усі місії пройдено правильно! Ти знаєш, як перевіряти камеру, обирати освітлення та тестувати мікрофон."}
+ else if(score>=40){title="Чудова робота, технічний експерте!";emoji="🥇";msg="Ти добре орієнтуєшся в техніці. Переглянь підказки до місій, де були помилки, і спробуй покращити результат."}
+ else if(score>=20){title="Ти на шляху до майстерності!";emoji="🌱";msg="Основи вже знайомі! Потренуйся з камерою, різними джерелами світла та тестовими аудіозаписами."}
+ else{title="Початок великої медіапригоди!";emoji="🎬";msg="Не переймайся: кожен експерт починав із першого кадру. Прочитай поради й пройди місії ще раз."}
+ $("resultTitle").textContent=title;$("trophy").textContent=emoji;$("resultText").textContent=msg;
+ $("review").innerHTML=questions.map((q,i)=>`<div><strong>${i+1}. ${q.cat}:</strong> ${earned[i]===10?"✅ +10 балів":"📘 Варто повторити"}<br><span style="color:#58736a">${q.tip}</span></div>`).join("");
+}
+$("nextBtn").addEventListener("click",()=>{if(!answered)return;if(index<questions.length-1){index++;render()}else finish()});
+function restart(){index=0;score=0;earned=[];render()}
+$("restartBtn").addEventListener("click",restart);$("playAgain").addEventListener("click",restart);
+render();
+</script>
+</body>
+</html>
